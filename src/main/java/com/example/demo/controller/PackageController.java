@@ -61,6 +61,18 @@ public class PackageController {
         return packageRepo.findAll();
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePackage(@PathVariable Integer id, @RequestBody PackageCreateDTO dto) {
+        return packageRepo.findById(id).map(existing -> {
+            existing.setStatus(dto.getStatus());
+            existing.setSentDate(dto.getSentDate());
+            existing.setDeliveryDate(dto.getDeliveryDate());
+            // Później dodać clienta i trase
+            packageRepo.save(existing);
+            return ResponseEntity.ok("Zaktualizowano paczkę o ID: " + id);
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePackage(@PathVariable Integer id) {
         if (!packageRepo.existsById(id)) {
