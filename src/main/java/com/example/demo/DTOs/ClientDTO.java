@@ -31,7 +31,5 @@ public class ClientDTO extends RepresentationModel<ClientDTO> {
         this.phone = client.getPhone();
         this.email = client.getEmail();
         
-       // this.add(linkTo(methodOn(ClientController.class)
-        //     .getClientPackages(client.getClientId())).withRel("packages"));
     }
 }
