@@ -6,10 +6,9 @@ import com.example.demo.models.Route;
 import com.example.demo.repository.PackageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/packages")
@@ -44,5 +43,30 @@ public class PackageController {
         packageRepo.save(pack);
 
         return ResponseEntity.ok("Dodano paczkę o ID: " + pack.getPackageId());
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getPackage(@PathVariable Integer id) {
+        Optional<Package_> pack = packageRepo.findById(id);
+        if (pack.isPresent()) {
+            return ResponseEntity.ok(pack.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
+    @GetMapping
+    public Iterable<Package_> getAllPackages() {
+        return packageRepo.findAll();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePackage(@PathVariable Integer id) {
+        if (!packageRepo.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        packageRepo.deleteById(id);
+        return ResponseEntity.ok("Usunięto paczkę o ID: " + id);
     }
 }
