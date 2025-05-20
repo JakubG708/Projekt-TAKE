@@ -8,5 +8,6 @@ import com.example.demo.models.Client;
 
 @Repository
 public interface ClientRepository extends CrudRepository<Client, Integer>{
+	
 
 }
