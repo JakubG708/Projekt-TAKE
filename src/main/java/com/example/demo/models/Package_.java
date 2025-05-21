@@ -25,11 +25,11 @@ public class Package_ {
     private Integer packageId;
 
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_id", nullable = true)
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name = "route_id", nullable = false)
+    @JoinColumn(name = "route_id", nullable = true)
     private Route route;
 
     @Column(nullable = false, length = 50)
