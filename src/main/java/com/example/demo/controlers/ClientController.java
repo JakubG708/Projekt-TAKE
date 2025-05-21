@@ -10,8 +10,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
-import com.example.demo.models.Client;
+import com.example.demo.models.*;
 import com.example.demo.repositories.*;
 
 import jakarta.validation.Valid;
@@ -60,8 +59,21 @@ public class ClientController {
 	}
 
 	@GetMapping("/{id}/packages")
-	public String getClientPackages(@PathVariable Integer id) {
-	    return "Tralalero Tralala";
+	public ResponseEntity<CollectionModel<PackageDTO>> getClientPackages(@PathVariable Integer id) {
+	    Optional<Client> clientOptional = clientRepo.findById(id);
+	    
+	    if (clientOptional.isEmpty()) {
+	        return ResponseEntity.notFound().build();
+	    }
+	    
+	    Client client = clientOptional.get();
+	    List<PackageDTO> packagesDTO = new ArrayList<>();
+	    
+	    for (Package_ pkg : client.getPackages()) {
+	        packagesDTO.add(new PackageDTO(pkg));
+	    }
+	    
+	    return ResponseEntity.ok(CollectionModel.of(packagesDTO));
 	}
 	
 	

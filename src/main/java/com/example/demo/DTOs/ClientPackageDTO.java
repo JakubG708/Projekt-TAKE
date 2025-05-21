@@ -1,5 +1,6 @@
 package com.example.demo.DTOs;
 
+
 import org.springframework.hateoas.RepresentationModel;
 
 import com.example.demo.models.Client;
@@ -15,21 +16,18 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ClientDTO {
-    private Integer id;
+public class ClientPackageDTO extends RepresentationModel<ClientPackageDTO>{
+	
     private String firstName;
     private String lastName;
-    private String address;
-    private String phone;
-    private String email;
-
-    public ClientDTO(Client client) {
-        this.id = client.getClientId();
+    
+    public ClientPackageDTO(Client client) {
         this.firstName = client.getFirstName();
         this.lastName = client.getLastName();
-        this.address = client.getAddress();
-        this.phone = client.getPhone();
-        this.email = client.getEmail();
+
+        this.add(linkTo(methodOn(ClientController.class)
+        		.getClientPackages(client.getClientId())).withRel("packages"));
         
     }
+
 }

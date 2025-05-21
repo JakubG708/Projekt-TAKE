@@ -10,11 +10,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.DTOs.CarDTO;
+import com.example.demo.DTOs.CarPackageDTO;
 import com.example.demo.DTOs.CarRequestDTO;
 import com.example.demo.DTOs.ClientDTO;
+import com.example.demo.DTOs.ClientPackageDTO;
 import com.example.demo.DTOs.ClientRequestDTO;
+import com.example.demo.DTOs.PackageDTO;
 import com.example.demo.models.Car;
 import com.example.demo.models.Client;
+import com.example.demo.models.Package_;
 import com.example.demo.repositories.*;
 
 import jakarta.validation.Valid;
@@ -47,8 +51,16 @@ public class CarController {
 	        return ResponseEntity.notFound().build(); // HTTP 404 - Samochod nie istnieje
 	    }
 	    
+	    Car car = carOptional.get(); 
+	    
+	    if (!car.getPackages().isEmpty()) {
+	        return ResponseEntity
+	            .badRequest()
+	            .body("Nie można usunąć samochodu z przypisanymi paczkami");
+	    }
+	    
 	    carRepo.deleteById(id);
-	    return ResponseEntity.noContent().build(); // HTTP 204 - Usunięto pomyślnie
+	    return ResponseEntity.noContent().build(); 
 	}
 	
 	@GetMapping("/cars")
@@ -95,5 +107,24 @@ public class CarController {
 	    Car updatedCar = carRepo.save(existingCar);
 	    
 	    return ResponseEntity.ok(new CarDTO(updatedCar)); // HTTP 200
+	}
+	
+	
+	@GetMapping("/{id}/packages")
+	public ResponseEntity<CollectionModel<PackageDTO>> getCarPackages(@PathVariable Integer id) {
+	    Optional<Car> cartOptional = carRepo.findById(id);
+	    
+	    if (cartOptional.isEmpty()) {
+	        return ResponseEntity.notFound().build();
+	    }
+	    
+	    Car car = cartOptional.get();
+	    List<PackageDTO> packagesDTO = new ArrayList<>();
+	    
+	    for (Package_ pkg : car.getPackages()) {
+	        packagesDTO.add(new PackageDTO(pkg));
+	    }
+	    
+	    return ResponseEntity.ok(CollectionModel.of(packagesDTO));
 	}
 }
