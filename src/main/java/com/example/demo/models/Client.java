@@ -36,10 +36,5 @@ public class Client {
 
     @Column(nullable = false)
     private String email;
-    
-    @OneToMany(mappedBy = "client",cascade = CascadeType.REMOVE)
-    private Set<Package_> packages;
-	
-	
 
 }

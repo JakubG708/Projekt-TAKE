@@ -12,21 +12,32 @@ import com.example.demo.controlers.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 
 @Getter
 @Setter
 public class PackageDTO extends RepresentationModel<PackageDTO> {
     private Integer packageId;
     private String status;
-
+    private LocalDate sentDate;
+    private LocalDate deliveryDate;
+    private LocalTime estimatedTime; // Dodajemy nowe pole
 
     public PackageDTO(Package_ package_) {
         this.packageId = package_.getPackageId();
         this.status = package_.getStatus();
-
-
-        // Dodaj link do konkretnej paczki (np. PackageController)
+        this.sentDate = package_.getSentDate();
+        this.deliveryDate = package_.getDeliveryDate();
+        
+        // Pobieramy szacowany czas z powiązanej trasy
+        if (package_.getRoute() != null) {
+            this.estimatedTime = package_.getRoute().getEstimatedTime();
+        }
+        
         this.add(linkTo(methodOn(PackageController.class)
                 .getPackageById(packageId)).withSelfRel());
     }
 }
+

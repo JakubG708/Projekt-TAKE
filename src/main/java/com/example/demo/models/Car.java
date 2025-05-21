@@ -28,12 +28,7 @@ public class Car {
 
     @Column(nullable = false)
     private String brand;
-    
-    @OneToMany(mappedBy = "car")
-    private Set<Package_> packages;
-    
-    @OneToMany(mappedBy = "car", cascade = CascadeType.REMOVE)
-    private Set<Route> routes;
+
 
     
 }

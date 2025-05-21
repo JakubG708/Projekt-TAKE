@@ -4,6 +4,7 @@ package com.example.demo.controlers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -26,6 +27,9 @@ public class ClientController {
 	
 	@Autowired
 	ClientRepository clientRepo;
+	
+	@Autowired
+    private PackageRepository packageRepo;
 	
 	
 	@PostMapping("/add")
@@ -60,18 +64,11 @@ public class ClientController {
 
 	@GetMapping("/{id}/packages")
 	public ResponseEntity<CollectionModel<PackageDTO>> getClientPackages(@PathVariable Integer id) {
-	    Optional<Client> clientOptional = clientRepo.findById(id);
+	    List<Package_> packages = packageRepo.findByClientWithRoute(id);
 	    
-	    if (clientOptional.isEmpty()) {
-	        return ResponseEntity.notFound().build();
-	    }
-	    
-	    Client client = clientOptional.get();
-	    List<PackageDTO> packagesDTO = new ArrayList<>();
-	    
-	    for (Package_ pkg : client.getPackages()) {
-	        packagesDTO.add(new PackageDTO(pkg));
-	    }
+	    List<PackageDTO> packagesDTO = packages.stream()
+	                                          .map(PackageDTO::new)
+	                                          .collect(Collectors.toList());
 	    
 	    return ResponseEntity.ok(CollectionModel.of(packagesDTO));
 	}
@@ -89,12 +86,21 @@ public class ClientController {
 	    Optional<Client> clientOptional = clientRepo.findById(id);
 	    
 	    if (clientOptional.isEmpty()) {
-	        return ResponseEntity.notFound().build(); // HTTP 404 - Klient nie istnieje
+	        return ResponseEntity.notFound().build();
 	    }
-	    
+
+	    // Usuń paczki przypisane do klienta
+	    List<Package_> packages = packageRepo.findByClient_ClientId(id);
+	    if (!packages.isEmpty()) {
+	        packageRepo.deleteAll(packages);
+	    }
+
+	    // Usuń klienta
 	    clientRepo.deleteById(id);
-	    return ResponseEntity.noContent().build(); // HTTP 204 - Usunięto pomyślnie
+	    
+	    return ResponseEntity.noContent().build();
 	}
+
 	
 	@PutMapping("/update/{id}")
 	public ResponseEntity<ClientDTO> updateClient(

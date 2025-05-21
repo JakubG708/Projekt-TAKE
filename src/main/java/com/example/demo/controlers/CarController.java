@@ -3,6 +3,7 @@ package com.example.demo.controlers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -16,9 +17,11 @@ import com.example.demo.DTOs.ClientDTO;
 import com.example.demo.DTOs.ClientPackageDTO;
 import com.example.demo.DTOs.ClientRequestDTO;
 import com.example.demo.DTOs.PackageDTO;
+import com.example.demo.DTOs.RouteDTO;
 import com.example.demo.models.Car;
 import com.example.demo.models.Client;
 import com.example.demo.models.Package_;
+import com.example.demo.models.Route;
 import com.example.demo.repositories.*;
 
 import jakarta.validation.Valid;
@@ -30,6 +33,13 @@ public class CarController {
 	
 	@Autowired
 	CarRepository carRepo;
+	
+	@Autowired
+	RouteRepository routeRepo;
+	
+	@Autowired
+	PackageRepository packageRepo;
+	
 	@PostMapping("/add")
 	public ResponseEntity<CarDTO> addCar(
 		    @Valid @RequestBody CarDTO carRequest
@@ -48,19 +58,19 @@ public class CarController {
 	    Optional<Car> carOptional = carRepo.findById(id);
 	    
 	    if (carOptional.isEmpty()) {
-	        return ResponseEntity.notFound().build(); // HTTP 404 - Samochod nie istnieje
+	        return ResponseEntity.notFound().build();
 	    }
 	    
-	    Car car = carOptional.get(); 
-	    
-	    if (!car.getPackages().isEmpty()) {
+	    // Sprawdź czy istnieją powiązane trasy
+	    List<Route> routes = routeRepo.findByCar_CarId(id);
+	    if (!routes.isEmpty()) {
 	        return ResponseEntity
 	            .badRequest()
-	            .body("Nie można usunąć samochodu z przypisanymi paczkami");
+	            .body("Nie można usunąć samochodu z przypisanymi trasami");
 	    }
 	    
 	    carRepo.deleteById(id);
-	    return ResponseEntity.noContent().build(); 
+	    return ResponseEntity.noContent().build();
 	}
 	
 	@GetMapping("/cars")
@@ -112,19 +122,27 @@ public class CarController {
 	
 	@GetMapping("/{id}/packages")
 	public ResponseEntity<CollectionModel<PackageDTO>> getCarPackages(@PathVariable Integer id) {
-	    Optional<Car> cartOptional = carRepo.findById(id);
+	    Optional<Car> carOptional = carRepo.findById(id);
 	    
-	    if (cartOptional.isEmpty()) {
+	    if (carOptional.isEmpty()) {
 	        return ResponseEntity.notFound().build();
 	    }
 	    
-	    Car car = cartOptional.get();
-	    List<PackageDTO> packagesDTO = new ArrayList<>();
-	    
-	    for (Package_ pkg : car.getPackages()) {
-	        packagesDTO.add(new PackageDTO(pkg));
-	    }
+	    // Pobierz paczki przez repozytorium Package_ a nie przez relację JPA
+	    List<Package_> packages = packageRepo.findByCar_CarId(id); // Wymaga odpowiedniej metody w PackageRepository
+	    List<PackageDTO> packagesDTO = packages.stream()
+	                                           .map(PackageDTO::new)
+	                                           .collect(Collectors.toList());
 	    
 	    return ResponseEntity.ok(CollectionModel.of(packagesDTO));
+	}
+	
+	@GetMapping("/{id}/routes")
+	public ResponseEntity<List<RouteDTO>> getCarRoutes(@PathVariable Integer id) {
+		  List<Route> routes = routeRepo.findByCar_CarId(id); // Wymaga metody w RouteRepository
+	    List<RouteDTO> routesDTO = routes.stream()
+	                                     .map(RouteDTO::new)
+	                                     .collect(Collectors.toList());
+	    return ResponseEntity.ok(routesDTO);
 	}
 }
