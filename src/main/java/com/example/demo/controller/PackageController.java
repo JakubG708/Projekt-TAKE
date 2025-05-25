@@ -1,9 +1,8 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.PackageCreateDTO;
+import com.example.demo.DTOs.PackageCreateDTO;
 import com.example.demo.models.Package_;
-import com.example.demo.models.Route;
-import com.example.demo.repository.PackageRepository;
+import com.example.demo.repositories.PackageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
