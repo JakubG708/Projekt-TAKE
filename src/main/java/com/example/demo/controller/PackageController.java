@@ -6,6 +6,7 @@ import com.example.demo.models.Package_;
 import com.example.demo.models.Route;
 import com.example.demo.repositories.ClientRepository;
 import com.example.demo.repositories.PackageRepository;
+import com.example.demo.repositories.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,22 +22,23 @@ public class PackageController {
     @Autowired
     private ClientRepository clientRepo;
 
-//    @Autowired
-//    private RouteRepository routeRepo;
+    @Autowired
+    private RouteRepository routeRepo;
 
     @PostMapping
     public ResponseEntity<?> addPackage(@RequestBody PackageCreateDTO dto) {
 
         // ROUTE = NULL
        Optional<Client> clientOpt = clientRepo.findById(dto.getClientId());
-//       Optional<Route> routeOpt = routeRepo.findById(dto.getRouteId());
-       if (clientOpt.isEmpty() /*|| routeOpt.isEmpty()*/) {
+       Optional<Route> routeOpt = routeRepo.findById(dto.getRouteId());
+       if (clientOpt.isEmpty() || routeOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Nie znaleziono klienta lub trasy.");
         }
 
         Package_ pack = new Package_();
         pack.setClient(clientOpt.get());
-        pack.setRoute(null);
+        //null for test
+        pack.setRoute(routeOpt.get());
         pack.setStatus(dto.getStatus());
         pack.setSentDate(dto.getSentDate());
         pack.setDeliveryDate(dto.getDeliveryDate());
@@ -64,10 +66,9 @@ public class PackageController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePackage(@PathVariable Integer id, @RequestBody PackageCreateDTO dto) {
-        // ROUTE = NULL
         Optional<Client> clientOpt = clientRepo.findById(dto.getClientId());
-//       Optional<Route> routeOpt = routeRepo.findById(dto.getRouteId());
-        if (clientOpt.isEmpty() /*|| routeOpt.isEmpty()*/) {
+        Optional<Route> routeOpt = routeRepo.findById(dto.getRouteId());
+        if (clientOpt.isEmpty() || routeOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Nie znaleziono klienta lub trasy.");
         }
         return packageRepo.findById(id).map(existing -> {
@@ -75,7 +76,7 @@ public class PackageController {
             existing.setSentDate(dto.getSentDate());
             existing.setDeliveryDate(dto.getDeliveryDate());
             existing.setClient(clientOpt.get());
-            // Później dodać clienta i trase
+            existing.setRoute(routeOpt.get());
             packageRepo.save(existing);
             return ResponseEntity.ok("Zaktualizowano paczkę o ID: " + id);
         }).orElse(ResponseEntity.notFound().build());

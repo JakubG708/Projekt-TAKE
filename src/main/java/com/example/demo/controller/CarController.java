@@ -20,7 +20,7 @@ public class CarController {
 	public @ResponseBody String addCar(@RequestBody Car car) 
 	{
 		 carRepo.save(car);
-		 return "Added with id=" + car.getCarId();
+		 return "Dodano auto z ID: " + car.getCarId();
 	}
 	
 	
@@ -35,7 +35,7 @@ public class CarController {
 	}
 	
 	
-	@GetMapping("/id/{id}")
+	@GetMapping("/{id}")
 	public Car getCarId(@PathVariable Integer id) 
 	{
 	    return carRepo.findById(id).orElse(null);
