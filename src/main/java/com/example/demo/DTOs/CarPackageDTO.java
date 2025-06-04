@@ -5,7 +5,7 @@ import com.example.demo.models.Car;
 
 import lombok.*;
 
-import com.example.demo.controlers.*;
+import com.example.demo.controller.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 

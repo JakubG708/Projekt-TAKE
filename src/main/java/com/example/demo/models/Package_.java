@@ -33,7 +33,7 @@ public class Package_ {
     private Route route;
     
     @ManyToOne
-    @JoinColumn(name = "car_id", nullable = false)
+    @JoinColumn(name = "car_id", nullable = true)
     private Car car;
 
     @Column(nullable = false, length = 50)

@@ -1,9 +1,10 @@
-package com.example.demo.controlers;
+package com.example.demo.controller;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -11,15 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.DTOs.CarDTO;
-import com.example.demo.DTOs.CarPackageDTO;
 import com.example.demo.DTOs.CarRequestDTO;
-import com.example.demo.DTOs.ClientDTO;
-import com.example.demo.DTOs.ClientPackageDTO;
-import com.example.demo.DTOs.ClientRequestDTO;
 import com.example.demo.DTOs.PackageDTO;
 import com.example.demo.DTOs.RouteDTO;
 import com.example.demo.models.Car;
-import com.example.demo.models.Client;
 import com.example.demo.models.Package_;
 import com.example.demo.models.Route;
 import com.example.demo.repositories.*;
@@ -51,6 +47,7 @@ public class CarController {
 		    Car savedCar = carRepo.save(newCar);
 		   
 		    return ResponseEntity.ok(new CarDTO(savedCar));
+
 	}
 	
 	@DeleteMapping("/delete/{id}")
