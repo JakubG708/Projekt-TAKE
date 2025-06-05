@@ -2,18 +2,26 @@ package com.example.demo.controller;
 
 import com.example.demo.DTOs.RouteCreateDTO;
 import com.example.demo.models.Car;
+import com.example.demo.models.Package_;
 import com.example.demo.models.Route;
 import com.example.demo.models.RouteList;
 import com.example.demo.repositories.CarRepository;
+<<<<<<< HEAD
 import com.example.demo.repositories.RouteListRepository;
+=======
+import com.example.demo.repositories.PackageRepository;
+>>>>>>> 855b32d4d30d80e6144b99a7269a0094ec897c0d
 import com.example.demo.repositories.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -24,6 +32,9 @@ public class RouteController {
 
     @Autowired
     private CarRepository carRepo;
+    
+    @Autowired
+    private PackageRepository packageRepo;
 
     @Autowired
     private RouteListRepository routeListRepo;
@@ -46,4 +57,24 @@ public class RouteController {
 
         return ResponseEntity.ok("Dodano trasę o ID: " + route.getRouteId());
     }
+    
+    
+    @DeleteMapping("/delete/{id}")
+	public ResponseEntity<?> deleteCar(@PathVariable Integer id) {
+	    Optional<Route> routeOptional = routeRepo.findById(id);
+	    
+	    if (routeOptional.isEmpty()) {
+	    	return ResponseEntity.badRequest().body("Nie znaleziono scierzki do usuniecia");
+	    }
+	    
+
+	    List<Package_> packages = packageRepo.findByRoute_RouteId(id);
+	    for (Package_ pkg : packages) {
+	        pkg.setRoute(null); 
+	    }
+	    packageRepo.saveAll(packages);
+	    
+	    routeRepo.deleteById(id);
+	    return ResponseEntity.ok().body("Scierzka o ID: " +id+" zostala usunieta");
+	}
 }
