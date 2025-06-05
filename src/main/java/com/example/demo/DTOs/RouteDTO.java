@@ -9,11 +9,22 @@ import lombok.*;
 @Getter
 @Setter
 public class RouteDTO {
-    private Integer routeId;
-    private LocalTime estimatedTime;
+	private Integer id;
+    private String estimatedTime;
+    private Integer carId;
+    private Integer routeListId;
 
     public RouteDTO(Route route) {
-        this.routeId = route.getRouteId();
-        this.estimatedTime = route.getEstimatedTime();
+        this.id = route.getRouteId();
+        this.estimatedTime = route.getEstimatedTime() != null ? route.getEstimatedTime().toString() : null;
+        
+        // zabezpieczenie przed null
+        this.carId = (route.getCar() != null && route.getCar().getCarId() != null)
+            ? route.getCar().getCarId()
+            : null;
+
+        this.routeListId = (route.getRouteList() != null && route.getRouteList().getRouteListId() != null)
+            ? route.getRouteList().getRouteListId()
+            : null;
     }
 }
