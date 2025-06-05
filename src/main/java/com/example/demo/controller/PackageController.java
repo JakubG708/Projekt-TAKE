@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.DTOs.PackageCreateDTO;
+import com.example.demo.DTOs.PackageResponseDTO;
 import com.example.demo.models.Client;
 import com.example.demo.models.Package_;
 import com.example.demo.models.Route;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -25,14 +28,14 @@ public class PackageController {
 
     @Autowired
     private RouteRepository routeRepo;
-    
+
     @PostMapping
     public ResponseEntity<?> addPackage(@RequestBody PackageCreateDTO dto) {
 
         // ROUTE = NULL
-       Optional<Client> clientOpt = clientRepo.findById(dto.getClientId());
-       Optional<Route> routeOpt = routeRepo.findById(dto.getRouteId());
-       if (clientOpt.isEmpty() || routeOpt.isEmpty()) {
+        Optional<Client> clientOpt = clientRepo.findById(dto.getClientId());
+        Optional<Route> routeOpt = routeRepo.findById(dto.getRouteId());
+        if (clientOpt.isEmpty() || routeOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Nie znaleziono klienta lub trasy.");
         }
 
@@ -48,12 +51,12 @@ public class PackageController {
 
         return ResponseEntity.ok("Dodano paczkę o ID: " + pack.getPackageId());
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getPackage(@PathVariable Integer id) {
         Optional<Package_> pack = packageRepo.findById(id);
         if (pack.isPresent()) {
-            return ResponseEntity.ok(pack.get());
+            return ResponseEntity.ok(new PackageResponseDTO(pack.get()));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -61,9 +64,14 @@ public class PackageController {
     }
 
     @GetMapping
-    public Iterable<Package_> getAllPackages() {
-        return packageRepo.findAll();
+    public ResponseEntity<?> getAllPackages() {
+        List<PackageResponseDTO> result = new ArrayList<>();
+        for (Package_ p : packageRepo.findAll()) {
+            result.add(new PackageResponseDTO(p));
+        }
+        return ResponseEntity.ok(result);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePackage(@PathVariable Integer id, @RequestBody PackageCreateDTO dto) {

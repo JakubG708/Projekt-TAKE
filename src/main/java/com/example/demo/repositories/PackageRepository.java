@@ -10,7 +10,7 @@ import com.example.demo.models.Package_;
 
 @Repository
 public interface PackageRepository extends CrudRepository<Package_, Integer> {
-    List<Package_> findByCar_CarId(Integer carId);
+    List<Package_> findByRoute_Car_CarId(Integer carId);
     List<Package_> findByClient_ClientId(Integer clientId);
 
     @Query("SELECT p FROM Package_ p LEFT JOIN FETCH p.route WHERE p.client.clientId = :clientId")

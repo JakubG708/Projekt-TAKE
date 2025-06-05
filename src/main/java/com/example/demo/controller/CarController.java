@@ -115,23 +115,20 @@ public class CarController {
 	    
 	    return ResponseEntity.ok(new CarDTO(updatedCar)); // HTTP 200
 	}
-	
-	
+
+
 	@GetMapping("/{id}/packages")
 	public ResponseEntity<CollectionModel<PackageDTO>> getCarPackages(@PathVariable Integer id) {
-	    Optional<Car> carOptional = carRepo.findById(id);
-	    
-	    if (carOptional.isEmpty()) {
-	        return ResponseEntity.notFound().build();
-	    }
-	    
-	    // Pobierz paczki przez repozytorium Package_ a nie przez relację JPA
-	    List<Package_> packages = packageRepo.findByCar_CarId(id); // Wymaga odpowiedniej metody w PackageRepository
-	    List<PackageDTO> packagesDTO = packages.stream()
-	                                           .map(PackageDTO::new)
-	                                           .collect(Collectors.toList());
-	    
-	    return ResponseEntity.ok(CollectionModel.of(packagesDTO));
+		if (!carRepo.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
+
+		List<Package_> packages = packageRepo.findByRoute_Car_CarId(id);
+		List<PackageDTO> packagesDTO = packages.stream()
+				.map(PackageDTO::new)
+				.collect(Collectors.toList());
+
+		return ResponseEntity.ok(CollectionModel.of(packagesDTO));
 	}
 	
 	@GetMapping("/{id}/routes")
