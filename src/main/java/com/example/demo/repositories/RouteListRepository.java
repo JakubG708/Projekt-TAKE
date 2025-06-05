@@ -1,7 +1,9 @@
 package com.example.demo.repositories;
 
 import com.example.demo.models.RouteList;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface RouteListRepository extends CrudRepository<RouteList, Integer> {
+@Repository
+public interface RouteListRepository extends JpaRepository<RouteList, Integer> {
 }
