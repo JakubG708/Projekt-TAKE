@@ -10,4 +10,5 @@ import com.example.demo.models.Route;
 @Repository
 public interface RouteRepository extends CrudRepository<Route, Integer> {
     List<Route> findByCar_CarId(Integer carId);
+    List<Route> findByRouteList_RouteListId(Integer routeListId);
 }

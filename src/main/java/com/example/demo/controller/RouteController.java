@@ -3,7 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.DTOs.RouteCreateDTO;
 import com.example.demo.models.Car;
 import com.example.demo.models.Route;
+import com.example.demo.models.RouteList;
 import com.example.demo.repositories.CarRepository;
+import com.example.demo.repositories.RouteListRepository;
 import com.example.demo.repositories.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,22 +25,21 @@ public class RouteController {
     @Autowired
     private CarRepository carRepo;
 
-//    @Autowired
-//    private RouteListRepository routeListRepo;
+    @Autowired
+    private RouteListRepository routeListRepo;
 
     @PostMapping("/add")
     public ResponseEntity<?> addRoute(@RequestBody RouteCreateDTO dto) {
         Optional<Car> carOpt = carRepo.findById(dto.getCarId());
-        //Optional<RouteList> listOpt = routeListRepo.findById(dto.getRouteListId());
+        Optional<RouteList> listOpt = routeListRepo.findById(dto.getRouteListId());
 
-        if (carOpt.isEmpty() /*|| listOpt.isEmpty()*/) {
+        if (carOpt.isEmpty() || listOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Nie znaleziono auta lub listy trasy.");
         }
 
         Route route = new Route();
         route.setCar(carOpt.get());
-        // null for test
-        route.setRouteList(null);
+        route.setRouteList(listOpt.get());
         route.setEstimatedTime(dto.getEstimatedTime());
 
         routeRepo.save(route);

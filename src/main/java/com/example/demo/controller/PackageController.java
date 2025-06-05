@@ -32,7 +32,6 @@ public class PackageController {
     @PostMapping
     public ResponseEntity<?> addPackage(@RequestBody PackageCreateDTO dto) {
 
-        // ROUTE = NULL
         Optional<Client> clientOpt = clientRepo.findById(dto.getClientId());
         Optional<Route> routeOpt = routeRepo.findById(dto.getRouteId());
         if (clientOpt.isEmpty() || routeOpt.isEmpty()) {
@@ -41,7 +40,6 @@ public class PackageController {
 
         Package_ pack = new Package_();
         pack.setClient(clientOpt.get());
-        //null for test
         pack.setRoute(routeOpt.get());
         pack.setStatus(dto.getStatus());
         pack.setSentDate(dto.getSentDate());

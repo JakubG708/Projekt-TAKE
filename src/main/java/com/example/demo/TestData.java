@@ -11,19 +11,19 @@ import java.time.LocalTime;
 public class TestData implements CommandLineRunner {
 
     private final CarRepository carRepo;
-    //private final RouteListRepository routeListRepo;
+    private final RouteListRepository routeListRepo;
     private final RouteRepository routeRepo;
     private final ClientRepository clientRepo;
     private final PackageRepository packageRepo;
 
     public TestData(
             CarRepository carRepo,
-            //RouteListRepository routeListRepo,
+            RouteListRepository routeListRepo,
             RouteRepository routeRepo,
             ClientRepository clientRepo,
             PackageRepository packageRepo) {
         this.carRepo = carRepo;
-        //this.routeListRepo = routeListRepo;
+        this.routeListRepo = routeListRepo;
         this.routeRepo = routeRepo;
         this.clientRepo = clientRepo;
         this.packageRepo = packageRepo;
@@ -32,12 +32,10 @@ public class TestData implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        // Dodaj samochód
         Car car = new Car();
         car.setBrand("Toyota");
         carRepo.save(car);
 
-        // Dodaj klienta
         Client client = new Client();
         client.setFirstName("Jan");
         client.setLastName("Kowalski");
@@ -46,21 +44,18 @@ public class TestData implements CommandLineRunner {
         client.setEmail("jan@example.com");
         clientRepo.save(client);
 
-        // Dodaj listę tras
         RouteList rl = new RouteList();
         rl.setStartPoint("Kraków");
         rl.setDestinationPoint("Warszawa");
         rl.setDistance(300.0);
-        //routeListRepo.save(rl);
+        routeListRepo.save(rl);
 
-        // Dodaj trasę
         Route route = new Route();
         route.setCar(car);
-        //route.setRouteList(rl);
+        route.setRouteList(rl);
         route.setEstimatedTime(LocalTime.of(2, 30));
         routeRepo.save(route);
 
-        // Dodaj paczkę
         Package_ p = new Package_();
         p.setClient(client);
         p.setRoute(route);

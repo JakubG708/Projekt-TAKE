@@ -26,7 +26,7 @@ public class Route {
     private Car car;
 
     @ManyToOne
-    @JoinColumn(name = "route_list_id", nullable = true)
+    @JoinColumn(name = "route_list_id", nullable = false)
     private RouteList routeList;
 
     @Column(nullable = false)
