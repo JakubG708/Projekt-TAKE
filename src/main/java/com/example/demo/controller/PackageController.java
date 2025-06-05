@@ -98,6 +98,13 @@ public class PackageController {
         return ResponseEntity.ok("Usunięto paczkę o ID: " + id);
     }
 
+    @GetMapping("/{id}/starting-point")
+    public ResponseEntity<String> getPackageStartingPoint(@PathVariable Integer id) {
+        return packageRepo.findById(id)
+                .map(p -> ResponseEntity.ok(p.getRoute().getRouteList().getStartPoint()))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/{id}/destination")
     public ResponseEntity<String> getPackageDestination(@PathVariable Integer id) {
         return packageRepo.findById(id)
@@ -109,6 +116,13 @@ public class PackageController {
                         return ResponseEntity.badRequest().body("Brak przypisanego klienta lub adresu.");
                     }
                 })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/estimated-time")
+    public ResponseEntity<String> getPackageEstimatedTime(@PathVariable Integer id) {
+        return packageRepo.findById(id)
+                .map(p -> ResponseEntity.ok(p.getRoute().getEstimatedTime().toString()))
                 .orElse(ResponseEntity.notFound().build());
     }
 

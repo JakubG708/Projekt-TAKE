@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.DTOs.PackageResponseDTO;
+import com.example.demo.DTOs.RouteDTO;
 import com.example.demo.DTOs.RouteListCreateDTO;
 import com.example.demo.models.Package_;
 import com.example.demo.models.Route;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -58,7 +61,6 @@ public class RouteListController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    // 4. Wyszukanie informacji o odcinku
     @GetMapping("/{id}")
     public ResponseEntity<RouteList> getRouteList(@PathVariable Integer id) {
         return routeListRepo.findById(id)
@@ -66,18 +68,27 @@ public class RouteListController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 5. Wyświetlanie tras korzystających z odcinka
     @GetMapping("/{id}/routes")
-    public ResponseEntity<List<Route>> getRoutesByRouteList(@PathVariable Integer id) {
+    public ResponseEntity<List<RouteDTO>> getRoutesByRouteList(@PathVariable Integer id) {
         List<Route> routes = routeRepo.findByRouteList_RouteListId(id);
-        return ResponseEntity.ok(routes);
+        List<RouteDTO> result = new ArrayList<>();
+        for (Route route : routes) {
+            RouteDTO dto =  new RouteDTO(route);
+            result.add(dto);
+        }
+        return ResponseEntity.ok(result);
     }
 
-    // 6. Wyświetlanie paczek przejeżdżających przez odcinek
     @GetMapping("/{id}/packages")
-    public ResponseEntity<List<Package_>> getPackagesByRouteList(@PathVariable Integer id) {
+    public ResponseEntity<List<PackageResponseDTO>> getPackagesByRouteList(@PathVariable Integer id) {
         List<Package_> packages = packageRepo.findByRoute_RouteList_RouteListId(id);
-        return ResponseEntity.ok(packages);
+        List<PackageResponseDTO> result = new ArrayList<>();
+        for (Package_ p : packages) {
+            PackageResponseDTO dto = new PackageResponseDTO(p);
+            result.add(dto);
+        }
+        return ResponseEntity.ok(result);
     }
+
 }
 

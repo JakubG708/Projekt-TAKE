@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class PackageResponseDTO {
-    private Integer id;
+    private Integer packageId;
     private String status;
     private LocalDate sentDate;
     private LocalDate deliveryDate;
@@ -17,7 +17,7 @@ public class PackageResponseDTO {
     private String routeInfo;
 
     public PackageResponseDTO(Package_ pack) {
-        this.id = pack.getPackageId();
+        this.packageId = pack.getPackageId();
         this.status = pack.getStatus();
         this.sentDate = pack.getSentDate();
         this.deliveryDate = pack.getDeliveryDate();

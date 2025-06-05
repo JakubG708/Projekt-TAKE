@@ -139,4 +139,28 @@ public class CarController {
 	                                     .collect(Collectors.toList());
 	    return ResponseEntity.ok(routesDTO);
 	}
+
+	@GetMapping("/{id}/estimated-time")
+	public ResponseEntity<String> getEstimatedTime(@PathVariable Integer id) {
+		List<Route> routes = routeRepo.findByCar_CarId(id);
+		int totalSeconds = routes.stream()
+				.map(r -> r.getEstimatedTime().toSecondOfDay())
+				.mapToInt(i -> i)
+				.sum();
+		int hours = totalSeconds / 3600;
+		int minutes = (totalSeconds % 3600) / 60;
+		return ResponseEntity.ok(hours + "h " + minutes + "min");
+	}
+
+	@GetMapping("/{id}/total-distance")
+	public ResponseEntity<String> getTotalDistance(@PathVariable Integer id) {
+		List<Route> routes = routeRepo.findByCar_CarId(id);
+		double totalDistance = routes.stream()
+				.map(r -> r.getRouteList().getDistance())
+				.mapToDouble(d -> d)
+				.sum();
+		return ResponseEntity.ok(totalDistance + " km");
+	}
+
+
 }

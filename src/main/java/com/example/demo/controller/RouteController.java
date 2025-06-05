@@ -6,11 +6,9 @@ import com.example.demo.models.Package_;
 import com.example.demo.models.Route;
 import com.example.demo.models.RouteList;
 import com.example.demo.repositories.CarRepository;
-<<<<<<< HEAD
-import com.example.demo.repositories.RouteListRepository;
-=======
+
 import com.example.demo.repositories.PackageRepository;
->>>>>>> 855b32d4d30d80e6144b99a7269a0094ec897c0d
+import com.example.demo.repositories.RouteListRepository;
 import com.example.demo.repositories.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
