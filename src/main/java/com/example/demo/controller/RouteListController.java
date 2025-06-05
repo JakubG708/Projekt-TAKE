@@ -38,7 +38,7 @@ public class RouteListController {
 
         RouteList saved = routeListRepo.save(routeList);
 
-        return ResponseEntity.ok("Dodano odcinek trasy o ID: " + routeList.getRouteListId());
+        return ResponseEntity.ok("Route section with ID added: " + routeList.getRouteListId());
     }
 
     @DeleteMapping("/{id}")
@@ -47,7 +47,7 @@ public class RouteListController {
             return ResponseEntity.notFound().build();
         }
         routeListRepo.deleteById(id);
-        return ResponseEntity.ok("Usunięto odcinek o ID: " + id);
+        return ResponseEntity.ok("Deleted section ID: " + id);
     }
 
     @PutMapping("/{id}")

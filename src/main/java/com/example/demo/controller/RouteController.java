@@ -43,7 +43,7 @@ public class RouteController {
         Optional<RouteList> listOpt = routeListRepo.findById(dto.getRouteListId());
 
         if (carOpt.isEmpty() || listOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Nie znaleziono auta lub listy trasy.");
+            return ResponseEntity.badRequest().body("No car or route list found.");
         }
 
         Route route = new Route();
@@ -53,16 +53,15 @@ public class RouteController {
 
         routeRepo.save(route);
 
-        return ResponseEntity.ok("Dodano trasę o ID: " + route.getRouteId());
+        return ResponseEntity.ok("Added route ID: " + route.getRouteId());
     }
-    
-    
+
     @DeleteMapping("/delete/{id}")
-	public ResponseEntity<?> deleteCar(@PathVariable Integer id) {
+	public ResponseEntity<?> deleteRoute(@PathVariable Integer id) {
 	    Optional<Route> routeOptional = routeRepo.findById(id);
 	    
 	    if (routeOptional.isEmpty()) {
-	    	return ResponseEntity.badRequest().body("Nie znaleziono scierzki do usuniecia");
+	    	return ResponseEntity.badRequest().body("No route found to remove");
 	    }
 	    
 
@@ -73,6 +72,6 @@ public class RouteController {
 	    packageRepo.saveAll(packages);
 	    
 	    routeRepo.deleteById(id);
-	    return ResponseEntity.ok().body("Scierzka o ID: " +id+" zostala usunieta");
+	    return ResponseEntity.ok().body("Route ID: " +id+" has been deleted");
 	}
 }

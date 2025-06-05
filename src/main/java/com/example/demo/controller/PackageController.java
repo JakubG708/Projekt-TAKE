@@ -35,7 +35,7 @@ public class PackageController {
         Optional<Client> clientOpt = clientRepo.findById(dto.getClientId());
         Optional<Route> routeOpt = routeRepo.findById(dto.getRouteId());
         if (clientOpt.isEmpty() || routeOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Nie znaleziono klienta lub trasy.");
+            return ResponseEntity.badRequest().body("Customer or route not found.");
         }
 
         Package_ pack = new Package_();
@@ -47,7 +47,7 @@ public class PackageController {
 
         packageRepo.save(pack);
 
-        return ResponseEntity.ok("Dodano paczkę o ID: " + pack.getPackageId());
+        return ResponseEntity.ok("Added package with ID: " + pack.getPackageId());
     }
 
     @GetMapping("/{id}")
@@ -76,7 +76,7 @@ public class PackageController {
         Optional<Client> clientOpt = clientRepo.findById(dto.getClientId());
         Optional<Route> routeOpt = routeRepo.findById(dto.getRouteId());
         if (clientOpt.isEmpty() || routeOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Nie znaleziono klienta lub trasy.");
+            return ResponseEntity.badRequest().body("Customer or route not found.");
         }
         return packageRepo.findById(id).map(existing -> {
             existing.setStatus(dto.getStatus());
@@ -85,7 +85,7 @@ public class PackageController {
             existing.setClient(clientOpt.get());
             existing.setRoute(routeOpt.get());
             packageRepo.save(existing);
-            return ResponseEntity.ok("Zaktualizowano paczkę o ID: " + id);
+            return ResponseEntity.ok("Updated package with ID: " + id);
         }).orElse(ResponseEntity.notFound().build());
     }
 
@@ -95,7 +95,7 @@ public class PackageController {
             return ResponseEntity.notFound().build();
         }
         packageRepo.deleteById(id);
-        return ResponseEntity.ok("Usunięto paczkę o ID: " + id);
+        return ResponseEntity.ok("Removed package with ID: " + id);
     }
 
     @GetMapping("/{id}/starting-point")
@@ -113,7 +113,7 @@ public class PackageController {
                     if (client != null && client.getAddress() != null) {
                         return ResponseEntity.ok(client.getAddress());
                     } else {
-                        return ResponseEntity.badRequest().body("Brak przypisanego klienta lub adresu.");
+                        return ResponseEntity.badRequest().body("No customer or address assigned.");
                     }
                 })
                 .orElse(ResponseEntity.notFound().build());
