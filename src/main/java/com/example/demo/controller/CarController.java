@@ -142,6 +142,9 @@ public class CarController {
 
 	@GetMapping("/{id}/estimated-time")
 	public ResponseEntity<String> getEstimatedTime(@PathVariable Integer id) {
+		if (!carRepo.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
 		List<Route> routes = routeRepo.findByCar_CarId(id);
 		int totalSeconds = routes.stream()
 				.map(r -> r.getEstimatedTime().toSecondOfDay())
