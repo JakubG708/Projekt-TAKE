@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -81,6 +82,9 @@ public class ClientController {
 		return new ClientContactInformationDTO(c);
 	}
 	
+	
+
+	
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<?> deleteClient(@PathVariable Integer id) {
 	    Optional<Client> clientOptional = clientRepo.findById(id);
@@ -126,6 +130,22 @@ public class ClientController {
 	    return ResponseEntity.ok(new ClientDTO(updatedClient)); // HTTP 200
 	}
 	
+	
+	@GetMapping("/{id}/delivery-dates")
+	public ResponseEntity<List<LocalDate>> getClientDeliveryDates(@PathVariable Integer id) {
+	    Optional<Client> clientOptional = clientRepo.findById(id);
+
+	    if (clientOptional.isEmpty()) {
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    List<Package_> packages = packageRepo.findByClient_ClientId(id);
+	    List<LocalDate> deliveryDates = packages.stream()
+	            .map(Package_::getDeliveryDate)
+	            .collect(Collectors.toList());
+
+	    return ResponseEntity.ok(deliveryDates);
+	}
 	
 
 }
