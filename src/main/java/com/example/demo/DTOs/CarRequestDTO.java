@@ -10,17 +10,13 @@ import lombok.*;
 @Setter
 public class CarRequestDTO 
 {
-	
 	private String brand;
 	private Integer carId;
-	
-	
-	
+
 	public CarRequestDTO(Car c)
 	{
 		this.carId = c.getCarId();
 		this.brand = c.getBrand();
 	}
-	
 
 }

@@ -38,7 +38,7 @@ public class RouteListController {
 
         RouteList saved = routeListRepo.save(routeList);
 
-        return ResponseEntity.ok("Route section with ID added: " + routeList.getRouteListId());
+        return ResponseEntity.ok("Route section with ID: " + routeList.getRouteListId() + " added." );
     }
 
     @DeleteMapping("/{id}")
@@ -57,7 +57,7 @@ public class RouteListController {
             existing.setDestinationPoint(updated.getDestinationPoint());
             existing.setDistance(updated.getDistance());
             routeListRepo.save(existing);
-            return ResponseEntity.ok(existing);
+            return ResponseEntity.ok("Route section with ID: " + existing.getRouteListId() + " updated." );
         }).orElse(ResponseEntity.notFound().build());
     }
 

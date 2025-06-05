@@ -6,15 +6,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
+import com.example.demo.DTOs.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.DTOs.CarDTO;
-import com.example.demo.DTOs.CarRequestDTO;
-import com.example.demo.DTOs.PackageDTO;
-import com.example.demo.DTOs.RouteDTO;
 import com.example.demo.models.Car;
 import com.example.demo.models.Package_;
 import com.example.demo.models.Route;
@@ -164,6 +161,20 @@ public class CarController {
 				.sum();
 		return ResponseEntity.ok(totalDistance + " km");
 	}
+
+	@GetMapping("/{id}/starting-points")
+	public ResponseEntity<List<RouteStartingPointDTO>> getCarStartingPoints(@PathVariable Integer id) {
+		if (!carRepo.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
+		List<Route> routes = routeRepo.findByCar_CarId(id);
+		List<RouteStartingPointDTO> result = new ArrayList<>();
+		for (Route r : routes) {
+			result.add(new RouteStartingPointDTO(r.getRouteId(), r.getRouteList().getStartPoint()));
+		}
+		return ResponseEntity.ok(result);
+	}
+
 
 
 }

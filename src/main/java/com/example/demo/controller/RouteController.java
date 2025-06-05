@@ -1,10 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.DTOs.CarDTO;
-import com.example.demo.DTOs.PackageForRouteDTO;
-import com.example.demo.DTOs.RouteCreateDTO;
-import com.example.demo.DTOs.RouteDTO;
-import com.example.demo.DTOs.RouteRequestDTO;
+import com.example.demo.DTOs.*;
 import com.example.demo.models.Car;
 import com.example.demo.models.Package_;
 import com.example.demo.models.Route;
@@ -85,7 +81,7 @@ public class RouteController {
 
         routeRepo.save(existingRoute);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("Route ID: " + id + " has been updated");
     }
 
     @DeleteMapping("/delete/{id}")
@@ -138,7 +134,7 @@ public class RouteController {
     }
 
     @GetMapping("/{id}/car")
-    public ResponseEntity<CarDTO> getCarByRouteId(@PathVariable Integer id) {
+    public ResponseEntity<CarRequestDTO> getCarByRouteId(@PathVariable Integer id) {
         Optional<Route> routeOptional = routeRepo.findById(id);
 
         if (routeOptional.isEmpty()) {
@@ -151,6 +147,6 @@ public class RouteController {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(new CarDTO(car));
+        return ResponseEntity.ok(new CarRequestDTO(car));
     }
 }

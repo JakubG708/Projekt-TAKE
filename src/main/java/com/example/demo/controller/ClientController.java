@@ -129,23 +129,24 @@ public class ClientController {
 	    
 	    return ResponseEntity.ok(new ClientDTO(updatedClient)); // HTTP 200
 	}
-	
-	
+
+
 	@GetMapping("/{id}/delivery-dates")
-	public ResponseEntity<List<LocalDate>> getClientDeliveryDates(@PathVariable Integer id) {
-	    Optional<Client> clientOptional = clientRepo.findById(id);
+	public ResponseEntity<List<PackageDeliveryDateDTO>> getClientDeliveryDates(@PathVariable Integer id) {
+		Optional<Client> clientOptional = clientRepo.findById(id);
 
-	    if (clientOptional.isEmpty()) {
-	        return ResponseEntity.notFound().build();
-	    }
+		if (clientOptional.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
 
-	    List<Package_> packages = packageRepo.findByClient_ClientId(id);
-	    List<LocalDate> deliveryDates = packages.stream()
-	            .map(Package_::getDeliveryDate)
-	            .collect(Collectors.toList());
+		List<Package_> packages = packageRepo.findByClient_ClientId(id);
+		List<PackageDeliveryDateDTO> result = packages.stream()
+				.map(p -> new PackageDeliveryDateDTO(p.getPackageId(), p.getDeliveryDate()))
+				.collect(Collectors.toList());
 
-	    return ResponseEntity.ok(deliveryDates);
+		return ResponseEntity.ok(result);
 	}
+
 	
 
 }

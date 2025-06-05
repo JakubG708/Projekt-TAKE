@@ -11,7 +11,7 @@ import lombok.*;
 @Getter
 @Setter
 public class RouteDTO {
-    private Integer id;
+    private Integer routeId;
 
     @Schema(type = "string", example = "03:20:15")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
@@ -21,7 +21,7 @@ public class RouteDTO {
     private Integer routeListId;
 
     public RouteDTO(Route route) {
-        this.id = route.getRouteId();
+        this.routeId = route.getRouteId();
         this.estimatedTime = route.getEstimatedTime();
 
         this.carId = (route.getCar() != null && route.getCar().getCarId() != null)
