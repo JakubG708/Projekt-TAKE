@@ -19,6 +19,9 @@ import com.example.demo.repositories.*;
 
 import jakarta.validation.Valid;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 
 @RestController
 @RequestMapping("/car")
@@ -36,8 +39,8 @@ public class CarController {
 	@PostMapping("/add")
 	public ResponseEntity<CarDTO> addCar(
 		    @Valid @RequestBody CarDTO carRequest
-		) {
-		    // Mapowanie DTO -> Encja
+		)
+	{
 		    Car newCar = new Car();
 		    newCar.setBrand(carRequest.getBrand());
 
@@ -54,8 +57,7 @@ public class CarController {
 	    if (carOptional.isEmpty()) {
 	        return ResponseEntity.notFound().build();
 	    }
-	    
-	    // Sprawdź czy istnieją powiązane trasy
+
 	    List<Route> routes = routeRepo.findByCar_CarId(id);
 	    if (!routes.isEmpty()) {
 	        return ResponseEntity
@@ -66,17 +68,20 @@ public class CarController {
 	    carRepo.deleteById(id);
 	    return ResponseEntity.noContent().build();
 	}
-	
+
 	@GetMapping("/cars")
-	public @ResponseBody CollectionModel<CarRequestDTO> getCars() 
-	{
-		List<CarRequestDTO> carsDTO = new ArrayList<>();
-		for(Car c:carRepo.findAll())
-		{
-			carsDTO.add(new CarRequestDTO(c));
+	public ResponseEntity<CollectionModel<CarDTO>> getCars() {
+		List<CarDTO> dtos = new ArrayList<>();
+		for (Car c : carRepo.findAll()) {
+			CarDTO dto = new CarDTO(c);
+			dto.add(linkTo(methodOn(CarController.class).getCar(c.getCarId())).withSelfRel());
+			dtos.add(dto);
 		}
-		return CollectionModel.of(carsDTO);
+		CollectionModel<CarDTO> model = CollectionModel.of(dtos);
+		model.add(linkTo(methodOn(CarController.class).getCars()).withSelfRel());
+		return ResponseEntity.ok(model);
 	}
+
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<CarDTO> getCar(@PathVariable Integer id) 
@@ -86,10 +91,14 @@ public class CarController {
 		if (carOptional.isEmpty()) {
 	        return ResponseEntity.notFound().build(); // HTTP 404
 	    }
-		
-		Car c = carOptional.get();
-		
-		return ResponseEntity.ok(new CarDTO(c));
+		CarDTO dto = new CarDTO(carOptional.get());
+
+		dto.add(linkTo(methodOn(CarController.class).getCar(id)).withSelfRel());
+		dto.add(linkTo(methodOn(CarController.class).getCars()).withRel("all-cars"));
+		dto.add(linkTo(methodOn(CarController.class).getCarPackages(id)).withRel("packages"));
+		dto.add(linkTo(methodOn(CarController.class).getCarRoutes(id)).withRel("routes"));
+
+		return ResponseEntity.ok(dto);
 	}
 	
 	@PutMapping("/update/{id}")
@@ -121,21 +130,29 @@ public class CarController {
 		}
 
 		List<Package_> packages = packageRepo.findByRoute_Car_CarId(id);
-		List<PackageDTO> packagesDTO = packages.stream()
-				.map(PackageDTO::new)
-				.collect(Collectors.toList());
+		List<PackageDTO> packagesDTO = new ArrayList<>();
+		for (Package_ p : packages) {
+			PackageDTO dto = new PackageDTO(p);
+			dto.add(linkTo(methodOn(PackageController.class).getPackage(p.getPackageId())).withSelfRel());
+			packagesDTO.add(dto);
+		}
+		CollectionModel<PackageDTO> model = CollectionModel.of(packagesDTO);
+		return ResponseEntity.ok(model);
+	}
 
-		return ResponseEntity.ok(CollectionModel.of(packagesDTO));
-	}
-	
 	@GetMapping("/{id}/routes")
-	public ResponseEntity<List<RouteDTO>> getCarRoutes(@PathVariable Integer id) {
-		  List<Route> routes = routeRepo.findByCar_CarId(id); // Wymaga metody w RouteRepository
-	    List<RouteDTO> routesDTO = routes.stream()
-	                                     .map(RouteDTO::new)
-	                                     .collect(Collectors.toList());
-	    return ResponseEntity.ok(routesDTO);
+	public ResponseEntity<CollectionModel<RouteDTO>> getCarRoutes(@PathVariable Integer id) {
+		List<Route> routes = routeRepo.findByCar_CarId(id);
+		List<RouteDTO> routesDTO = new ArrayList<>();
+		for (Route route : routes) {
+			RouteDTO dto = new RouteDTO(route);
+			dto.add(linkTo(methodOn(RouteController.class).getRouteById(route.getRouteId())).withSelfRel());
+			routesDTO.add(dto);
+		}
+		CollectionModel<RouteDTO> model = CollectionModel.of(routesDTO);
+		return ResponseEntity.ok(model);
 	}
+
 
 	@GetMapping("/{id}/estimated-time")
 	public ResponseEntity<String> getEstimatedTime(@PathVariable Integer id) {
@@ -174,7 +191,5 @@ public class CarController {
 		}
 		return ResponseEntity.ok(result);
 	}
-
-
 
 }

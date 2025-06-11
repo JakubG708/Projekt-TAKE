@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.DTOs.PackageResponseDTO;
 import com.example.demo.DTOs.RouteDTO;
 import com.example.demo.DTOs.RouteListCreateDTO;
+import com.example.demo.DTOs.RouteListDTO;
 import com.example.demo.models.Package_;
 import com.example.demo.models.Route;
 import com.example.demo.models.RouteList;
@@ -10,11 +11,15 @@ import com.example.demo.repositories.PackageRepository;
 import com.example.demo.repositories.RouteListRepository;
 import com.example.demo.repositories.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/routelist")
@@ -62,33 +67,45 @@ public class RouteListController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RouteList> getRouteList(@PathVariable Integer id) {
+    public ResponseEntity<RouteListDTO> getRouteList(@PathVariable Integer id) {
         return routeListRepo.findById(id)
-                .map(ResponseEntity::ok)
+                .map(routeList -> {
+                    RouteListDTO dto = new RouteListDTO(routeList);
+                    dto.add(linkTo(methodOn(RouteListController.class).getRouteList(id)).withSelfRel());
+                    dto.add(linkTo(methodOn(RouteListController.class).getRoutesByRouteList(id)).withRel("routes"));
+                    dto.add(linkTo(methodOn(RouteListController.class).getPackagesByRouteList(id)).withRel("packages"));
+                    return ResponseEntity.ok(dto);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
+
     @GetMapping("/{id}/routes")
-    public ResponseEntity<List<RouteDTO>> getRoutesByRouteList(@PathVariable Integer id) {
+    public ResponseEntity<CollectionModel<RouteDTO>> getRoutesByRouteList(@PathVariable Integer id) {
         List<Route> routes = routeRepo.findByRouteList_RouteListId(id);
         List<RouteDTO> result = new ArrayList<>();
         for (Route route : routes) {
-            RouteDTO dto =  new RouteDTO(route);
+            RouteDTO dto = new RouteDTO(route);
+            dto.add(linkTo(methodOn(RouteController.class).getRouteById(route.getRouteId())).withSelfRel());
             result.add(dto);
         }
-        return ResponseEntity.ok(result);
+        CollectionModel<RouteDTO> model = CollectionModel.of(result);
+        return ResponseEntity.ok(model);
     }
 
     @GetMapping("/{id}/packages")
-    public ResponseEntity<List<PackageResponseDTO>> getPackagesByRouteList(@PathVariable Integer id) {
+    public ResponseEntity<CollectionModel<PackageResponseDTO>> getPackagesByRouteList(@PathVariable Integer id) {
         List<Package_> packages = packageRepo.findByRoute_RouteList_RouteListId(id);
         List<PackageResponseDTO> result = new ArrayList<>();
         for (Package_ p : packages) {
             PackageResponseDTO dto = new PackageResponseDTO(p);
+            dto.add(linkTo(methodOn(PackageController.class).getPackage(p.getPackageId())).withSelfRel());
             result.add(dto);
         }
-        return ResponseEntity.ok(result);
+        CollectionModel<PackageResponseDTO> model = CollectionModel.of(result);
+        return ResponseEntity.ok(model);
     }
+
 
 }
 

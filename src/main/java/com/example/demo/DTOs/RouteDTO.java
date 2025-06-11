@@ -7,10 +7,11 @@ import com.example.demo.models.Route;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
 @Getter
 @Setter
-public class RouteDTO {
+public class RouteDTO extends RepresentationModel<RouteDTO> {
     private Integer routeId;
 
     @Schema(type = "string", example = "03:20:15")
@@ -25,11 +26,11 @@ public class RouteDTO {
         this.estimatedTime = route.getEstimatedTime();
 
         this.carId = (route.getCar() != null && route.getCar().getCarId() != null)
-            ? route.getCar().getCarId()
-            : null;
+                ? route.getCar().getCarId()
+                : null;
 
         this.routeListId = (route.getRouteList() != null && route.getRouteList().getRouteListId() != null)
-            ? route.getRouteList().getRouteListId()
-            : null;
+                ? route.getRouteList().getRouteListId()
+                : null;
     }
 }

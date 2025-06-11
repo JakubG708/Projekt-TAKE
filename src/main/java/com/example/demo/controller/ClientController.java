@@ -19,7 +19,8 @@ import jakarta.validation.Valid;
 
 import com.example.demo.DTOs.*;
 
-
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 @RestController
@@ -37,7 +38,6 @@ public class ClientController {
 	public ResponseEntity<ClientDTO> addClient(
 		    @Valid @RequestBody ClientRequestDTO clientRequest
 		) {
-		    // Mapowanie DTO -> Encja
 		    Client newClient = new Client();
 		    newClient.setFirstName(clientRequest.getFirstName());
 		    newClient.setLastName(clientRequest.getLastName());
@@ -49,29 +49,35 @@ public class ClientController {
 		   
 		    return ResponseEntity.ok(new ClientDTO(savedClient));
 	}
-	
-	
-	
+
+
+
 	@GetMapping("/clients")
-	public @ResponseBody CollectionModel<ClientDTO> getClients() 
-	{
+	public ResponseEntity<CollectionModel<ClientDTO>> getClients() {
 		List<ClientDTO> clientsDTO = new ArrayList<>();
-		for(Client client:clientRepo.findAll())
-		{
-			clientsDTO.add(new ClientDTO(client));
+		for(Client client : clientRepo.findAll()) {
+			ClientDTO dto = new ClientDTO(client);
+			dto.add(linkTo(methodOn(ClientController.class).getClient(client.getClientId())).withSelfRel());
+			clientsDTO.add(dto);
 		}
-		return CollectionModel.of(clientsDTO);
+		CollectionModel<ClientDTO> model = CollectionModel.of(clientsDTO);
+		model.add(linkTo(methodOn(ClientController.class).getClients()).withSelfRel());
+		return ResponseEntity.ok(model);
 	}
+
 
 	@GetMapping("/{id}/packages")
 	public ResponseEntity<CollectionModel<PackageDTO>> getClientPackages(@PathVariable Integer id) {
-	    List<Package_> packages = packageRepo.findByClientWithRoute(id);
-	    
-	    List<PackageDTO> packagesDTO = packages.stream()
-	                                          .map(PackageDTO::new)
-	                                          .collect(Collectors.toList());
-	    
-	    return ResponseEntity.ok(CollectionModel.of(packagesDTO));
+		List<Package_> packages = packageRepo.findByClientWithRoute(id);
+		List<PackageDTO> packagesDTO = new ArrayList<>();
+		for (Package_ p : packages) {
+			PackageDTO dto = new PackageDTO(p);
+			dto.add(linkTo(methodOn(PackageController.class).getPackage(p.getPackageId())).withSelfRel());
+			packagesDTO.add(dto);
+		}
+		CollectionModel<PackageDTO> model = CollectionModel.of(packagesDTO);
+		model.add(linkTo(methodOn(CarController.class).getCarPackages(id)).withSelfRel());
+		return ResponseEntity.ok(model);
 	}
 	
 	
@@ -93,13 +99,11 @@ public class ClientController {
 	        return ResponseEntity.notFound().build();
 	    }
 
-	    // Usuń paczki przypisane do klienta
 	    List<Package_> packages = packageRepo.findByClient_ClientId(id);
 	    if (!packages.isEmpty()) {
 	        packageRepo.deleteAll(packages);
 	    }
 
-	    // Usuń klienta
 	    clientRepo.deleteById(id);
 	    
 	    return ResponseEntity.noContent().build();
@@ -147,6 +151,18 @@ public class ClientController {
 		return ResponseEntity.ok(result);
 	}
 
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getClient(@PathVariable Integer id) {
+		Optional<Client> clientOptional = clientRepo.findById(id);
+		if (clientOptional.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		ClientDTO dto = new ClientDTO(clientOptional.get());
+		dto.add(linkTo(methodOn(ClientController.class).getClient(id)).withSelfRel());
+		dto.add(linkTo(methodOn(ClientController.class).getClients()).withRel("all-clients"));
+		dto.add(linkTo(methodOn(ClientController.class).getClientPackages(id)).withRel("packages"));
+		return ResponseEntity.ok(dto);
+	}
 	
 
 }

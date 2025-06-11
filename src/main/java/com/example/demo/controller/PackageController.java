@@ -9,12 +9,16 @@ import com.example.demo.repositories.ClientRepository;
 import com.example.demo.repositories.PackageRepository;
 import com.example.demo.repositories.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/packages")
@@ -54,7 +58,15 @@ public class PackageController {
     public ResponseEntity<?> getPackage(@PathVariable Integer id) {
         Optional<Package_> pack = packageRepo.findById(id);
         if (pack.isPresent()) {
-            return ResponseEntity.ok(new PackageResponseDTO(pack.get()));
+            PackageResponseDTO dto = new PackageResponseDTO(pack.get());
+            // Links to self, client, route
+            dto.add(linkTo(methodOn(PackageController.class).getPackage(id)).withSelfRel());
+            dto.add(linkTo(methodOn(ClientController.class)
+                    .getClient(pack.get().getClient().getClientId())).withRel("client"));
+            dto.add(linkTo(methodOn(RouteController.class)
+                    .getRouteById(pack.get().getRoute().getRouteId())).withRel("route"));
+
+            return ResponseEntity.ok(dto);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -63,11 +75,19 @@ public class PackageController {
 
     @GetMapping
     public ResponseEntity<?> getAllPackages() {
-        List<PackageResponseDTO> result = new ArrayList<>();
+        List<PackageResponseDTO> dtos = new ArrayList<>();
         for (Package_ p : packageRepo.findAll()) {
-            result.add(new PackageResponseDTO(p));
+            PackageResponseDTO dto = new PackageResponseDTO(p);
+            dto.add(linkTo(methodOn(PackageController.class).getPackage(p.getPackageId())).withSelfRel());
+            dto.add(linkTo(methodOn(ClientController.class)
+                    .getClient(p.getClient().getClientId())).withRel("client"));
+            dto.add(linkTo(methodOn(RouteController.class)
+                    .getRouteById(p.getRoute().getRouteId())).withRel("route"));
+            dtos.add(dto);
         }
-        return ResponseEntity.ok(result);
+        CollectionModel<PackageResponseDTO> model = CollectionModel.of(dtos);
+        model.add(linkTo(methodOn(PackageController.class).getAllPackages()).withSelfRel());
+        return ResponseEntity.ok(model);
     }
 
 

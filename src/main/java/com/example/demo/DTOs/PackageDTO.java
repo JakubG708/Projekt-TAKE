@@ -23,21 +23,18 @@ public class PackageDTO extends RepresentationModel<PackageDTO> {
     private String status;
     private LocalDate sentDate;
     private LocalDate deliveryDate;
-    private LocalTime estimatedTime; // Dodajemy nowe pole
+    private LocalTime estimatedTime;
 
     public PackageDTO(Package_ package_) {
         this.packageId = package_.getPackageId();
         this.status = package_.getStatus();
         this.sentDate = package_.getSentDate();
         this.deliveryDate = package_.getDeliveryDate();
-        
-        // Pobieramy szacowany czas z powiązanej trasy
+
         if (package_.getRoute() != null) {
             this.estimatedTime = package_.getRoute().getEstimatedTime();
         }
-        
-        this.add(linkTo(methodOn(PackageController.class)
-                .getPackage(packageId)).withSelfRel());
+
     }
 }
 

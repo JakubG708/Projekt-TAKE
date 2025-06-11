@@ -4,14 +4,13 @@ package com.example.demo.DTOs;
 import com.example.demo.models.Client;
 
 import lombok.*;
-
-
+import org.springframework.hateoas.RepresentationModel;
 
 
 @NoArgsConstructor
 @Getter
 @Setter
-public class ClientDTO {
+public class ClientDTO extends RepresentationModel<ClientDTO> {
     private Integer id;
     private String firstName;
     private String lastName;

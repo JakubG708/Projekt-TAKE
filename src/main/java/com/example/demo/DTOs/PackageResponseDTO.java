@@ -3,12 +3,13 @@ package com.example.demo.DTOs;
 import com.example.demo.models.Package_;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDate;
 
 @Getter
 @Setter
-public class PackageResponseDTO {
+public class PackageResponseDTO extends RepresentationModel<PackageResponseDTO> {
     private Integer packageId;
     private String status;
     private LocalDate sentDate;

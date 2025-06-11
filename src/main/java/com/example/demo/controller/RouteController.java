@@ -13,11 +13,16 @@ import com.example.demo.repositories.RouteRepository;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/routes")
@@ -113,6 +118,10 @@ public class RouteController {
         Route route = routeOptional.get();
         RouteDTO routeDTO = new RouteDTO(route);
 
+        routeDTO.add(linkTo(methodOn(RouteController.class).getRouteById(id)).withSelfRel());
+        routeDTO.add(linkTo(methodOn(RouteController.class).getCarByRouteId(id)).withRel("car"));
+        routeDTO.add(linkTo(methodOn(RouteController.class).getPackagesByRouteId(id)).withRel("packages"));
+
         return ResponseEntity.ok(routeDTO);
     }
 
@@ -126,9 +135,16 @@ public class RouteController {
 
         Route route = routeOpt.get();
         List<Package_> packages = packageRepo.findByRoute(route);
-        List<PackageForRouteDTO> packageDTOs = packages.stream()
-                                               .map(PackageForRouteDTO::new)
-                                               .toList();
+
+        List<PackageForRouteDTO> packageDTOs = new ArrayList<>();
+        for (Package_ p : packages) {
+            PackageForRouteDTO dto = new PackageForRouteDTO(p);
+            dto.add(linkTo(methodOn(PackageController.class).getPackage(p.getPackageId())).withSelfRel());
+            packageDTOs.add(dto);
+        }
+
+        CollectionModel<PackageForRouteDTO> model = CollectionModel.of(packageDTOs);
+        model.add(linkTo(methodOn(RouteController.class).getPackagesByRouteId(id)).withSelfRel());
 
         return ResponseEntity.ok(packageDTOs);
     }
@@ -146,7 +162,11 @@ public class RouteController {
         if (car == null) {
             return ResponseEntity.noContent().build();
         }
+        CarRequestDTO dto = new CarRequestDTO(car);
 
-        return ResponseEntity.ok(new CarRequestDTO(car));
+        dto.add(linkTo(methodOn(RouteController.class).getCarByRouteId(id)).withSelfRel());
+        dto.add(linkTo(methodOn(CarController.class).getCar(car.getCarId())).withRel("car-details"));
+
+        return ResponseEntity.ok(dto);
     }
 }
